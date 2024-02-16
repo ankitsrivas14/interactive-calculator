@@ -1,15 +1,15 @@
 import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import './PrimitiveBlock.css'
+import { NodeDataType } from '../../../types/types';
 
 interface PrimitiveBlockProps {
-    data: {
-      onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    };
+    data: NodeDataType;
     isConnectable: boolean;
   }
 
 const PrimitiveBlock = memo<PrimitiveBlockProps>(({ data, isConnectable }) => {
+
     return (
         <>
             <Handle
