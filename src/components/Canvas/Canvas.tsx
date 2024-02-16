@@ -99,7 +99,7 @@ const Canvas = () => {
         data: { 
           label: `${type} node`,
           value: null,
-          onChange: (event) => updateNodeData(newNode.id, { value: event.target.value }),
+          onChange: (value) => updateNodeData(newNode.id, { value }),
         },
       };
 
@@ -150,6 +150,8 @@ const Canvas = () => {
   useEffect(() => {
     detectAndStoreChains();
   }, [nodes, edges, detectAndStoreChains]);
+
+  console.log(chains);
   
   return (
     <div className="dndflow">

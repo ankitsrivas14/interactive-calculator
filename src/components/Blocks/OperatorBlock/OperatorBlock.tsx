@@ -1,15 +1,18 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import './OperatorBlock.css'
+import { NodeDataType } from '../../../types/types';
 
 interface OperatorProps {
-    data: {
-      onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    };
+    data: NodeDataType;
     isConnectable: boolean;
   }
 
 const OperatorBlock = memo<OperatorProps>(({ data, isConnectable }) => {
+
+    useEffect(() => {
+        data.onChange('+');
+    }, [])
     return (
         <>
             <Handle

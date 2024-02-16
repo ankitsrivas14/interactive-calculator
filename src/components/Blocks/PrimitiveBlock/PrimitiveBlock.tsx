@@ -20,7 +20,7 @@ const PrimitiveBlock = memo<PrimitiveBlockProps>(({ data, isConnectable }) => {
                 isConnectable={isConnectable}
             />
             <div className='primitive-block'>
-                <input className="nodrag" type="number" onChange={data.onChange} />
+                <input className="nodrag" type="number" onChange={(e) => data.onChange(e.target.value)} />
             </div>
             <Handle
                 type="source"

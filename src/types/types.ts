@@ -2,7 +2,7 @@
 export interface NodeDataType {
     label: string;
     value: string | null;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (value: any) => void;
 }
 
 export interface Node {
