@@ -56,6 +56,12 @@ const Canvas = () => {
     };
   
     const evaluateExpression = (expression: string[]): string | null => {
+      
+      // Do not evaluate if the chain does not start with a number
+      if (expression.length === 0 || isNaN(Number(expression[0]))) {
+        return null;
+      }
+      
       if (expression.includes('NA')) return null;
       try {
         // Safer evaluation method should be used in production
