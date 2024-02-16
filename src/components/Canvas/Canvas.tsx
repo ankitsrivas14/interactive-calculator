@@ -87,10 +87,25 @@ const Canvas = () => {
   
   
 
-  const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    [],
-  );
+  const onConnect = useCallback((params: Edge | Connection) => {
+    const { source, target, sourceHandle, targetHandle } = params;
+  
+    // Check for existing outgoing connection from the same source and sourceHandle
+    const existingOutgoingConnection = edges.some(edge => 
+      edge.source === source && edge.sourceHandle === sourceHandle
+    );
+  
+    // Check for existing incoming connection to the same target and targetHandle
+    const existingIncomingConnection = edges.some(edge => 
+      edge.target === target && edge.targetHandle === targetHandle
+    );
+  
+    // If either an outgoing connection from this handle or an incoming connection to the target handle exists, do not add a new edge
+    if (!existingOutgoingConnection && !existingIncomingConnection) {
+      setEdges((eds) => addEdge(params, eds));
+    }
+  }, [edges, setEdges]);
+  
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
