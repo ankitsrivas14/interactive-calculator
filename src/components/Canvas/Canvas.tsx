@@ -35,35 +35,30 @@ const Canvas = () => {
   const [chains, setChains] = useState([]);
 
   const detectAndStoreChains = useCallback(() => {
-    // Function to trace back from a given node to the start of its chain
     const traceChain = (node, chain = []) => {
-      // Add the current node's value to the chain
       const value = node.data.value || 'NA';
       chain.push(value);
   
-      // Find the node(s) that connects to this node
       const incomingEdges = edges.filter(edge => edge.target === node.id);
       const parentNodes = incomingEdges.map(edge => nodes.find(n => n.id === edge.source)).filter(n => n);
   
-      // If there's no parent node (start of a chain), or multiple inputs (error in chain logic), stop tracing
-      if (parentNodes.length !== 1) return chain;
+      if (parentNodes.length !== 1) {
+        // When no parent node is found, return the chain as is.
+        return chain;
+      }
   
-      // Continue tracing back from the found parent node
+      // Continue tracing back from the found parent node.
       return traceChain(parentNodes[0], chain);
     };
   
-    // Find all result nodes as starting points for tracing
-    const resultNodes = nodes.filter(node => node.type === 'result');
-    const chains = resultNodes.map(resultNode => {
-      // Trace back the chain for each result node, then reverse it to get the correct order
-      const chain = traceChain(resultNode);
-      return chain.reverse();
+    // Adjusted to accommodate new structure: array of objects each with id and data.
+    const newChains = nodes.filter(node => node.type === 'result').map(resultNode => {
+      const chainData = traceChain(resultNode).reverse();
+      return { id: resultNode.id, data: chainData };
     });
   
-    // Update the state with the detected chains
-    setChains(chains);
+    setChains(newChains);
   }, [nodes, edges]);
-  
   
 
   const onConnect = useCallback(
@@ -78,7 +73,7 @@ const Canvas = () => {
 
   const updateNodeData = useCallback((nodeId, newData) => {
     setNodes((prevNodes) => prevNodes.map((node) => {
-      if (node.id === nodeId) {
+      if (node.id === nodeId && node.data.value !== newData.value) {
         return {
           ...node,
           data: {
@@ -152,7 +147,17 @@ const Canvas = () => {
 
   useEffect(() => {
     detectAndStoreChains();
-  }, [nodes, edges, detectAndStoreChains]);
+  }, [nodes, edges]); // Removed detectAndStoreChains from dependencies
+
+  useEffect(() => {
+    chains.forEach(chain => {
+      // Update node data only if it's different to minimize re-renders
+      const currentNode = nodes.find(n => n.id === chain.id);
+      if (currentNode && currentNode.data.value !== 'Calculating..') {
+        updateNodeData(chain.id, { value: 'Calculating..' });
+      }
+    });
+  }, [chains]);
 
   console.log(chains);
   

@@ -9,9 +9,13 @@ interface OperatorProps {
     isConnectable: boolean;
   }
 
-  const OperatorBlock = memo<OperatorProps>(({ data, isConnectable }) => {
+const OperatorBlock = memo<OperatorProps>(({ data, isConnectable }) => {
     // Assuming you have an array or object mapping operator IDs to symbols
     const operatorSymbol = operators.find(op => op.id === data.id)?.symbol || '';
+
+    useEffect(() => {
+        data.onChange(operatorSymbol);
+    }, []);
 
     return (
         <>
