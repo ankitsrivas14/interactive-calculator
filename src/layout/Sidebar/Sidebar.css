@@ -1,0 +1,43 @@
+.sidebar{
+    border-right: 1.5px solid #d1cece;
+    padding: 15px 10px;
+    font-size: 12px;
+    background: #fcfcfc;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.sidebar .sidebar-header{
+    margin-top: 16px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    font-size: 22px;
+}
+
+.sidebar .block-list{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+
+.sidebar .dndnode {
+    overflow: hidden;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+    font-size: 16px;
+}
+  
+.sidebar .dndnode.input {
+    border-color: #0041d0;
+}
+  
+.sidebar .dndnode.output {
+    border-color: #ff0072;
+}

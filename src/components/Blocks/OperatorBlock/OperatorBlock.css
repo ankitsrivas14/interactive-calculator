@@ -1,0 +1,15 @@
+.operator-block{
+    border: 2px solid #7593C3;
+    padding: 0px;
+    width: 35px;
+    background-color: #D6E5FC;
+    border-radius: 50px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.operator-block span{
+    font-weight: 700;
+    font-size: 24px;
+}

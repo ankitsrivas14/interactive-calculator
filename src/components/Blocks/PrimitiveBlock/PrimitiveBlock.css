@@ -1,0 +1,10 @@
+.primitive-block{
+    border: 2px solid #89B774;
+    padding: 12px;
+    max-width: 120px;
+    background-color: #CFE4CF;
+    border-radius: 8px;
+}
+.primitive-block input{
+    width: calc(100% - 10px);
+}
