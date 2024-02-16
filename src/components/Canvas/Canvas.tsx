@@ -76,36 +76,6 @@ const Canvas = () => {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
-      if (!reactFlowInstance) return;
-
-      const type = event.dataTransfer.getData('application/reactflow');
-      if (typeof type === 'undefined' || !type) {
-        return;
-      }
-      const position = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      
-      const newNode = {
-        id: getId(),
-        type,
-        position,
-        data: { 
-          label: `${type} node`,
-          value: null,
-          onChange: (value) => updateNodeData(newNode.id, { value }),
-        },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [reactFlowInstance],
-  );
-
   const updateNodeData = useCallback((nodeId, newData) => {
     setNodes((prevNodes) => prevNodes.map((node) => {
       if (node.id === nodeId) {
@@ -120,6 +90,41 @@ const Canvas = () => {
       return node;
     }));
   }, [setNodes]);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+      if (!reactFlowInstance) return;
+  
+      const dragData = event.dataTransfer.getData('application/reactflow');
+      if (!dragData) {
+        return;
+      }
+  
+      const [nodeType, operatorId] = dragData.includes(':') ? dragData.split(':') : [dragData, undefined];
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+  
+      // Adjusting how newNode is created based on nodeType and potentially operatorId
+      const newNode = {
+        id: getId(),
+        type: nodeType,
+        position,
+        data: { 
+          label: nodeType === 'operator' && operatorId ? `${operatorId} node` : `${nodeType} node`,
+          value: '', // Assuming you want to start with an empty string or specify a default value
+          onChange: (value) => updateNodeData(newNode.id, { value }),
+          ...(nodeType === 'operator' && operatorId ? { id: operatorId } : {}), // Add operatorId to data if applicable
+        },
+      };
+  
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [reactFlowInstance, setNodes, updateNodeData],
+  );
+  
 
   const isValidConnection = (connection: Connection): boolean => {
     const sourceNode = nodes.find(node => node.id === connection.source);

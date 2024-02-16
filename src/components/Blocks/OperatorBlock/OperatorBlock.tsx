@@ -2,17 +2,17 @@ import { memo, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import './OperatorBlock.css'
 import { NodeDataType } from '../../../types/types';
+import { operators } from '../../../data/blocks';
 
 interface OperatorProps {
     data: NodeDataType;
     isConnectable: boolean;
   }
 
-const OperatorBlock = memo<OperatorProps>(({ data, isConnectable }) => {
+  const OperatorBlock = memo<OperatorProps>(({ data, isConnectable }) => {
+    // Assuming you have an array or object mapping operator IDs to symbols
+    const operatorSymbol = operators.find(op => op.id === data.id)?.symbol || '';
 
-    useEffect(() => {
-        data.onChange('+');
-    }, [])
     return (
         <>
             <Handle
@@ -23,7 +23,7 @@ const OperatorBlock = memo<OperatorProps>(({ data, isConnectable }) => {
                 isConnectable={isConnectable}
             />
             <div className='operator-block'>
-               <span>+</span>
+               <span>{operatorSymbol}</span>
             </div>
             <Handle
                 type="source"
@@ -35,5 +35,6 @@ const OperatorBlock = memo<OperatorProps>(({ data, isConnectable }) => {
         </>
     );
 });
+
 
 export default OperatorBlock;
