@@ -3,6 +3,7 @@ export interface NodeDataType {
     label: string;
     value: string | null;
     onChange: (value: any) => void;
+    id?: string;
 }
 
 export interface Node {
@@ -34,3 +35,9 @@ export interface Connection {
   
 export interface NodesArray extends Array<Node>{}
 export interface EdgesArray extends Array<Connection>{}
+
+export interface ChainData {
+    id: string;
+    data: string[]; 
+    value: string | null; 
+}

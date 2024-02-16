@@ -16,6 +16,7 @@ import PrimitiveBlock from '../Blocks/PrimitiveBlock/PrimitiveBlock';
 import OperatorBlock from '../Blocks/OperatorBlock/OperatorBlock';
 import ResultBlock from '../Blocks/ResultBlock/ResultBlock';
 import './Canvas.css';
+import { ChainData, Node } from '../../types/types';
 
 
 let id = 0;
@@ -27,34 +28,37 @@ const nodeTypes = {
   result: ResultBlock,
 };
 
+function isNode (node: any): node is Node {
+  return node !== undefined && (node.type === 'primitive' || node.type === 'operator' || node.type === 'result');
+}
+
 const Canvas = () => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
-  const [chains, setChains] = useState([]);
+  const [chains, setChains] = useState<ChainData[]>([]);
 
   const detectAndStoreChains = useCallback(() => {
-    const traceChain = (node, chain = []) => {
-      // Exclude the result node's value from the chain data
+    const traceChain = (node: Node, chain: string[] = []): string[] => {
       if (node.type === 'result') return chain;
   
       const value = node.data.value || 'NA';
       chain.push(value);
       
       const incomingEdges = edges.filter(edge => edge.target === node.id);
-      const parentNodes = incomingEdges.map(edge => nodes.find(n => n.id === edge.source)).filter(n => n);
+      const parentNodes = incomingEdges.map(edge => nodes.find(n => n.id === edge.source)).filter((n): n is Node => !!n);
+      
+      if (parentNodes.length !== 1) return chain;
   
-      if (parentNodes.length !== 1) return chain; // Stop tracing if no parent node
-  
+      // Safe to call traceChain since we've filtered out undefined with type guard
       return traceChain(parentNodes[0], chain);
     };
   
-    const evaluateExpression = (expression) => {
-      if (expression.includes('NA')) return null; // Return null if 'NA' is in the expression
-  
+    const evaluateExpression = (expression: string[]): string | null => {
+      if (expression.includes('NA')) return null;
       try {
-        // Note: Using eval() for demonstration; consider a safer evaluation method for production
+        // Safer evaluation method should be used in production
         return eval(expression.join(' ')).toString();
       } catch (error) {
         console.error("Error evaluating expression:", error);
@@ -62,22 +66,24 @@ const Canvas = () => {
       }
     };
   
-    // Map each result node to its chain, excluding the result node itself from chain data
+    // Use a type guard to ensure we only deal with non-null values
     const newChains = nodes.filter(node => node.type === 'result').map(resultNode => {
       const connectedNode = edges.find(edge => edge.target === resultNode.id);
-      if (!connectedNode) return null; // Skip if the result node is not connected
-  
+      if (!connectedNode) return null;
+
       const parentNode = nodes.find(node => node.id === connectedNode.source);
-      if (!parentNode) return null; // Skip if there's no parent node
-  
-      const chainData = traceChain(parentNode).reverse();
-      const evaluatedValue = evaluateExpression(chainData); // Evaluate the chain expression
-  
+      // Use the type guard here
+      if (!isNode(parentNode)) return null;
+
+      const chainData = traceChain(parentNode).reverse(); // Now safe to call
+      const evaluatedValue = evaluateExpression(chainData);
+      
       return { id: resultNode.id, data: chainData, value: evaluatedValue };
-    }).filter(chain => chain !== null); // Remove any null entries for unconnected result nodes
+  }).filter((chain): chain is ChainData => chain !== null);
+
+  setChains(newChains);
+  }, [nodes, edges, setChains]);
   
-    setChains(newChains);
-  }, [nodes, edges]);
   
   
 
@@ -91,7 +97,7 @@ const Canvas = () => {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const updateNodeData = useCallback((nodeId, newData) => {
+  const updateNodeData = useCallback((nodeId: string, newData: { value: string }) => {
     setNodes((prevNodes) => prevNodes.map((node) => {
       if (node.id === nodeId && node.data.value !== newData.value) {
         return {
@@ -130,7 +136,7 @@ const Canvas = () => {
         data: { 
           label: nodeType === 'operator' && operatorId ? `${operatorId} node` : `${nodeType} node`,
           value: '', // Assuming you want to start with an empty string or specify a default value
-          onChange: (value) => updateNodeData(newNode.id, { value }),
+          onChange: (value: any) => updateNodeData(newNode.id, { value }),
           ...(nodeType === 'operator' && operatorId ? { id: operatorId } : {}), // Add operatorId to data if applicable
         },
       };
