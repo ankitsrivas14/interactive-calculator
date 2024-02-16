@@ -14,14 +14,41 @@ const Sidebar = () => {
         <div className="sidebar">
             <div className="sidebar-header">Interactive Calculator</div>
             <div className='block-list'>
-                <div className="dndnode primitive-block" onDragStart={(event) => onDragStart(event, 'primitive')} draggable>
-                    Primitive Block
+                <div className="dndnode primitive-block ex-large" onDragStart={(event) => onDragStart(event, 'primitive')} draggable>
+                    Primitive
                 </div>
-                <div className="dndnode operator-block" onDragStart={(event) => onDragStart(event, 'operator')} draggable>
-                    Op
+                <div className='operator-section'>
+                    <div 
+                        className="dndnode operator-block" 
+                        onDragStart={(event) => onDragStart(event, 'operator')} 
+                        draggable
+                    >
+                        +
+                    </div>
+                    <div 
+                        className="dndnode operator-block" 
+                        onDragStart={(event) => onDragStart(event, 'operator')} 
+                        draggable
+                    >
+                        -
+                    </div>
+                    <div 
+                        className="dndnode operator-block" 
+                        onDragStart={(event) => onDragStart(event, 'operator')} 
+                        draggable
+                    >
+                        x
+                    </div>
+                    <div 
+                        className="dndnode operator-block" 
+                        onDragStart={(event) => onDragStart(event, 'operator')} 
+                        draggable
+                    >
+                        /
+                    </div>
                 </div>
-                <div className="dndnode result-block" onDragStart={(event) => onDragStart(event, 'result')} draggable>
-                    <span>Result Block</span>
+                <div className="dndnode result-block ex-large" onDragStart={(event) => onDragStart(event, 'result')} draggable>
+                    <span>Result</span>
                 </div>
             </div>
         </div>

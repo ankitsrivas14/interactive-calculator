@@ -11,13 +11,11 @@ import ReactFlow, {
   ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-
 import Sidebar from '../../layout/Sidebar/Sidebar';
-
-import './Canvas.css';
 import PrimitiveBlock from '../Blocks/PrimitiveBlock/PrimitiveBlock';
 import OperatorBlock from '../Blocks/OperatorBlock/OperatorBlock';
 import ResultBlock from '../Blocks/ResultBlock/ResultBlock';
+import './Canvas.css';
 
 
 let id = 0;

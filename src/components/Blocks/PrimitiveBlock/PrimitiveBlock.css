@@ -1,7 +1,7 @@
 .primitive-block{
     border: 2px solid #89B774;
-    padding: 12px;
-    max-width: 120px;
+    padding: 6px;
+    width: 60px;
     background-color: #CFE4CF;
     border-radius: 8px;
 }
