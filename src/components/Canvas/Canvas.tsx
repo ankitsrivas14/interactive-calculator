@@ -36,7 +36,7 @@ const Canvas = () => {
 
   const detectAndStoreChains = useCallback(() => {
     const traceChain = (node, chain = []) => {
-      // Stop if the current node is a result node, effectively not adding its value to the chain
+      // Exclude the result node's value from the chain data
       if (node.type === 'result') return chain;
   
       const value = node.data.value || 'NA';
@@ -45,25 +45,36 @@ const Canvas = () => {
       const incomingEdges = edges.filter(edge => edge.target === node.id);
       const parentNodes = incomingEdges.map(edge => nodes.find(n => n.id === edge.source)).filter(n => n);
   
-      // If there's no parent node (start of a chain), or multiple inputs (error in chain logic), stop tracing
-      if (parentNodes.length !== 1) return chain;
+      if (parentNodes.length !== 1) return chain; // Stop tracing if no parent node
   
-      // Continue tracing back from the found parent node
       return traceChain(parentNodes[0], chain);
     };
   
-    // Adjusted to accommodate new structure: array of objects each with id and data.
+    const evaluateExpression = (expression) => {
+      if (expression.includes('NA')) return null; // Return null if 'NA' is in the expression
+  
+      try {
+        // Note: Using eval() for demonstration; consider a safer evaluation method for production
+        return eval(expression.join(' ')).toString();
+      } catch (error) {
+        console.error("Error evaluating expression:", error);
+        return null;
+      }
+    };
+  
+    // Map each result node to its chain, excluding the result node itself from chain data
     const newChains = nodes.filter(node => node.type === 'result').map(resultNode => {
-      // Start tracing from each result node's connected node, excluding the result node itself from the chain data
       const connectedNode = edges.find(edge => edge.target === resultNode.id);
       if (!connectedNode) return null; // Skip if the result node is not connected
   
       const parentNode = nodes.find(node => node.id === connectedNode.source);
-      if (!parentNode) return null; // Skip if there's no parent node found
+      if (!parentNode) return null; // Skip if there's no parent node
   
       const chainData = traceChain(parentNode).reverse();
-      return { id: resultNode.id, data: chainData };
-    }).filter(chain => chain !== null); // Filter out any null entries from unconnected result nodes
+      const evaluatedValue = evaluateExpression(chainData); // Evaluate the chain expression
+  
+      return { id: resultNode.id, data: chainData, value: evaluatedValue };
+    }).filter(chain => chain !== null); // Remove any null entries for unconnected result nodes
   
     setChains(newChains);
   }, [nodes, edges]);
@@ -167,6 +178,16 @@ const Canvas = () => {
       }
     });
   }, [chains]);
+
+  useEffect(() => {
+    chains.forEach(chain => {
+      if (chain.value !== null) {
+        updateNodeData(chain.id, { value: chain.value.toString() });
+      } else {
+        updateNodeData(chain.id, { value: 'NA' });
+      }
+    });
+  }, [chains, updateNodeData]);
 
   console.log(chains);
   

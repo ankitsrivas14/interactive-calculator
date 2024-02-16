@@ -20,7 +20,7 @@ const ResultBlock = memo<ResultBlockProps>(({ data, isConnectable }) => {
         isConnectable={isConnectable}
       />
       <div className='result-block'>
-        <span>{data.value}</span>
+        <span>{!!data?.value ? data.value : 'NA'}</span>
       </div>
     </>
   );
