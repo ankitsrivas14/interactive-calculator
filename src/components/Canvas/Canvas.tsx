@@ -36,29 +36,38 @@ const Canvas = () => {
 
   const detectAndStoreChains = useCallback(() => {
     const traceChain = (node, chain = []) => {
+      // Stop if the current node is a result node, effectively not adding its value to the chain
+      if (node.type === 'result') return chain;
+  
       const value = node.data.value || 'NA';
       chain.push(value);
-  
+      
       const incomingEdges = edges.filter(edge => edge.target === node.id);
       const parentNodes = incomingEdges.map(edge => nodes.find(n => n.id === edge.source)).filter(n => n);
   
-      if (parentNodes.length !== 1) {
-        // When no parent node is found, return the chain as is.
-        return chain;
-      }
+      // If there's no parent node (start of a chain), or multiple inputs (error in chain logic), stop tracing
+      if (parentNodes.length !== 1) return chain;
   
-      // Continue tracing back from the found parent node.
+      // Continue tracing back from the found parent node
       return traceChain(parentNodes[0], chain);
     };
   
     // Adjusted to accommodate new structure: array of objects each with id and data.
     const newChains = nodes.filter(node => node.type === 'result').map(resultNode => {
-      const chainData = traceChain(resultNode).reverse();
+      // Start tracing from each result node's connected node, excluding the result node itself from the chain data
+      const connectedNode = edges.find(edge => edge.target === resultNode.id);
+      if (!connectedNode) return null; // Skip if the result node is not connected
+  
+      const parentNode = nodes.find(node => node.id === connectedNode.source);
+      if (!parentNode) return null; // Skip if there's no parent node found
+  
+      const chainData = traceChain(parentNode).reverse();
       return { id: resultNode.id, data: chainData };
-    });
+    }).filter(chain => chain !== null); // Filter out any null entries from unconnected result nodes
   
     setChains(newChains);
   }, [nodes, edges]);
+  
   
 
   const onConnect = useCallback(
