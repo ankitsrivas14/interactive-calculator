@@ -90,21 +90,36 @@ const Canvas = () => {
   const onConnect = useCallback((params: Edge | Connection) => {
     const { source, target, sourceHandle, targetHandle } = params;
   
-    // Check for existing outgoing connection from the same source and sourceHandle
+    // Prevent direct circular connection
+    if (source === target) return;
+  
     const existingOutgoingConnection = edges.some(edge => 
       edge.source === source && edge.sourceHandle === sourceHandle
     );
   
-    // Check for existing incoming connection to the same target and targetHandle
     const existingIncomingConnection = edges.some(edge => 
       edge.target === target && edge.targetHandle === targetHandle
     );
   
-    // If either an outgoing connection from this handle or an incoming connection to the target handle exists, do not add a new edge
-    if (!existingOutgoingConnection && !existingIncomingConnection) {
-      setEdges((eds) => addEdge(params, eds));
-    }
+    // Check for potential cycles
+    const findCycle = (currentNodeId: string, targetId: string, visited = new Set<string>()) => {
+      if (currentNodeId === targetId) return true;
+      visited.add(currentNodeId);
+  
+      const outgoingEdges = edges.filter(edge => edge.source === currentNodeId);
+      for (let edge of outgoingEdges) {
+        if (!visited.has(edge.target)) {
+          if (findCycle(edge.target, targetId, visited)) return true;
+        }
+      }
+      return false;
+    };
+  
+    if (existingOutgoingConnection || existingIncomingConnection || findCycle(target as string, source as string)) return;
+  
+    setEdges((eds) => addEdge(params, eds));
   }, [edges, setEdges]);
+  
   
 
   const onDragOver = useCallback((event: React.DragEvent) => {
