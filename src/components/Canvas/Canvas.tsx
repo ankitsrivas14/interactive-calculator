@@ -259,7 +259,6 @@ const Canvas = () => {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
-            fitView
             isValidConnection={isValidConnection}
           >
             <Background variant={BackgroundVariant.Dots} />

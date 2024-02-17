@@ -1,12 +1,13 @@
 .result-block{
     border: 2px solid #aa0803;
     padding: 6px;
-    width: 60px;
+    min-width: 60px;
     background-color: #FC0700;
     border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: max-content;
 }
 .result-block span{
     font-weight: 700;

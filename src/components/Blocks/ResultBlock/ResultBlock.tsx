@@ -10,6 +10,16 @@ interface ResultBlockProps {
   isConnectable: boolean;
 }
 
+function formatNumber(value: string) {
+  const num = Number(value);
+  if (Number.isNaN(num)) return value; 
+  if (Number.isInteger(num)) {
+    return num.toString();
+  } else {
+    return num.toFixed(2).replace(/\.00$|0+$/, '');
+  }
+}
+
 const ResultBlock = memo<ResultBlockProps>(({ data, isConnectable }) => {
   return (
     <>
@@ -20,7 +30,7 @@ const ResultBlock = memo<ResultBlockProps>(({ data, isConnectable }) => {
         isConnectable={isConnectable}
       />
       <div className='result-block'>
-        <span>{!!data?.value ? data.value : 'NA'}</span>
+        <span>{!!data?.value ? formatNumber(data.value) : 'NA'}</span>
       </div>
     </>
   );

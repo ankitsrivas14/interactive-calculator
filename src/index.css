@@ -6,3 +6,6 @@ html, body, #root {
   box-sizing: border-box;
   font-family: sans-serif;
 }
+.react-flow__attribution{
+  display: none;
+}
