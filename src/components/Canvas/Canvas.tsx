@@ -51,44 +51,63 @@ const Canvas = () => {
       
       if (parentNodes.length !== 1) return chain;
   
-      // Safe to call traceChain since we've filtered out undefined with type guard
       return traceChain(parentNodes[0], chain);
     };
   
     const evaluateExpression = (expression: string[]): string | null => {
-      
-      // Do not evaluate if the chain does not start with a number
       if (expression.length === 0 || isNaN(Number(expression[0]))) {
-        return null;
+        return null; // Do not evaluate if the chain does not start with a number
       }
       
       if (expression.includes('NA')) return null;
-      try {
-        // Safer evaluation method should be used in production
-        return eval(expression.join(' ')).toString();
-      } catch (error) {
-        console.error("Error evaluating expression:", error);
-        return null;
+  
+      let result = parseFloat(expression[0]);
+      for (let i = 1; i < expression.length; i += 2) {
+        const operator = expression[i];
+        const nextValue = parseFloat(expression[i + 1]);
+  
+        switch (operator) {
+          case '+':
+            result += nextValue;
+            break;
+          case '-':
+            result -= nextValue;
+            break;
+          case '*':
+            result *= nextValue;
+            break;
+          case '/':
+            if (nextValue === 0) {
+              console.error("Error: Division by zero.");
+              return null;
+            }
+            result /= nextValue;
+            break;
+          default:
+            console.error("Error: Unknown operator.");
+            return null;
+        }
       }
+  
+      return result.toString();
     };
   
-    // Use a type guard to ensure we only deal with non-null values
     const newChains = nodes.filter(node => node.type === 'result').map(resultNode => {
       const connectedNode = edges.find(edge => edge.target === resultNode.id);
       if (!connectedNode) return null;
-
+  
       const parentNode = nodes.find(node => node.id === connectedNode.source);
-      // Use the type guard here
-      if (!isNode(parentNode)) return null;
-
-      const chainData = traceChain(parentNode).reverse(); // Now safe to call
+      if (!isNode(parentNode)) return null; // Assuming you have an isNode type guard
+  
+      const chainData = traceChain(parentNode).reverse();
       const evaluatedValue = evaluateExpression(chainData);
-      
+  
       return { id: resultNode.id, data: chainData, value: evaluatedValue };
-  }).filter((chain): chain is ChainData => chain !== null);
-
-  setChains(newChains);
+    }).filter((chain): chain is ChainData => chain !== null);
+  
+    setChains(newChains);
   }, [nodes, edges, setChains]);
+  
   
   
   
