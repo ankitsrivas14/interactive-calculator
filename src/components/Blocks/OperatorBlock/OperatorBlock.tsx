@@ -10,7 +10,6 @@ interface OperatorProps {
   }
 
 const OperatorBlock = memo<OperatorProps>(({ data, isConnectable }) => {
-    // Assuming you have an array or object mapping operator IDs to symbols
     const operatorSymbol = operators.find(op => op.id === data.id)?.symbol || '';
 
     useEffect(() => {

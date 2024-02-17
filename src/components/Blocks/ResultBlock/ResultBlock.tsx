@@ -4,8 +4,8 @@ import './ResultBlock.css';
 
 interface ResultBlockProps {
   data: {
-    value: string; // Assuming value is a string. Adjust type as necessary.
-    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void; // Optional if not used in ResultBlock
+    value: string; 
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   };
   isConnectable: boolean;
 }
