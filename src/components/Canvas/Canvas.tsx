@@ -19,16 +19,13 @@ import './Canvas.css';
 import { ChainData, Node } from '../../types/types';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { evaluateExpression, isNode } from '../../utility';
 
 const nodeTypes = {
   primitive: PrimitiveBlock,
   operator: OperatorBlock,
   result: ResultBlock,
 };
-
-function isNode (node: any): node is Node {
-  return node !== undefined && (node.type === 'primitive' || node.type === 'operator' || node.type === 'result');
-}
 
 const Canvas = () => {
   const reactFlowWrapper = useRef(null);
@@ -40,54 +37,14 @@ const Canvas = () => {
   const detectAndStoreChains = useCallback(() => {
     const traceChain = (node: Node, chain: string[] = []): string[] => {
       if (node.type === 'result') return chain;
-  
+
       const value = node.data.value || 'NA';
       chain.push(value);
-      
       const incomingEdges = edges.filter(edge => edge.target === node.id);
       const parentNodes = incomingEdges.map(edge => nodes.find(n => n.id === edge.source)).filter((n): n is Node => !!n);
       
       if (parentNodes.length !== 1) return chain;
-  
       return traceChain(parentNodes[0], chain);
-    };
-  
-    const evaluateExpression = (expression: string[]): string | null => {
-      if (expression.length === 0 || isNaN(Number(expression[0]))) {
-        return null; // Do not evaluate if the chain does not start with a number
-      }
-      
-      if (expression.includes('NA')) return null;
-  
-      let result = parseFloat(expression[0]);
-      for (let i = 1; i < expression.length; i += 2) {
-        const operator = expression[i];
-        const nextValue = parseFloat(expression[i + 1]);
-  
-        switch (operator) {
-          case '+':
-            result += nextValue;
-            break;
-          case '-':
-            result -= nextValue;
-            break;
-          case '*':
-            result *= nextValue;
-            break;
-          case '/':
-            if (nextValue === 0) {
-              console.error("Error: Division by zero.");
-              return null;
-            }
-            result /= nextValue;
-            break;
-          default:
-            console.error("Error: Unknown operator.");
-            return null;
-        }
-      }
-  
-      return result.toString();
     };
   
     const newChains = nodes.filter(node => node.type === 'result').map(resultNode => {
@@ -95,7 +52,7 @@ const Canvas = () => {
       if (!connectedNode) return null;
   
       const parentNode = nodes.find(node => node.id === connectedNode.source);
-      if (!isNode(parentNode)) return null; // Assuming you have an isNode type guard
+      if (!isNode(parentNode)) return null;
   
       const chainData = traceChain(parentNode).reverse();
       const evaluatedValue = evaluateExpression(chainData);
@@ -104,8 +61,6 @@ const Canvas = () => {
     }).filter((chain): chain is ChainData => chain !== null);
 
     return newChains;
-  
-    // setChains(newChains);
   }, [nodes, edges]);
   
 
@@ -182,16 +137,15 @@ const Canvas = () => {
 
       const newId = uuidv4();
   
-      // Adjusting how newNode is created based on nodeType and potentially operatorId
       const newNode = {
         id: newId,
         type: nodeType,
         position,
         data: { 
           label: nodeType === 'operator' && operatorId ? `${operatorId} node` : `${nodeType} node`,
-          value: '', // Assuming you want to start with an empty string or specify a default value
+          value: '',
           onChange: (value: any) => updateNodeData(newNode.id, { value }),
-          ...(nodeType === 'operator' && operatorId ? { id: operatorId } : {}), // Add operatorId to data if applicable
+          ...(nodeType === 'operator' && operatorId ? { id: operatorId } : {}), 
         },
       };
   
@@ -231,7 +185,7 @@ const Canvas = () => {
     if (_.isEqual(newChains, chains) === false) {
       setChains(newChains);
     }
-  }, [nodes, edges]); // Removed detectAndStoreChains from dependencies
+  }, [nodes, edges]);
 
 
   useEffect(() => {
