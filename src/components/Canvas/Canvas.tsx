@@ -20,6 +20,7 @@ import { ChainData, Node } from '../../types/types';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { evaluateExpression, isNode } from '../../utility';
+import ArrowMarker from '../shared/ArrowMarker';
 
 const nodeTypes = {
   primitive: PrimitiveBlock,
@@ -94,7 +95,12 @@ const Canvas = () => {
   
     if (existingOutgoingConnection || existingIncomingConnection || findCycle(target as string, source as string)) return;
   
-    setEdges((eds) => addEdge(params, eds));
+    const newEdge = {
+      ...params,
+      style: { stroke: '#ddd', markerEnd: 'url(#arrow)' },
+    };
+
+    setEdges((eds) => addEdge(newEdge, eds));
   }, [edges, setEdges]);
   
   
@@ -200,6 +206,7 @@ const Canvas = () => {
   
   return (
     <div className="dndflow">
+      <ArrowMarker />
       <ReactFlowProvider>
         <Sidebar />
         <div className="reactflow-wrapper" ref={reactFlowWrapper}>
