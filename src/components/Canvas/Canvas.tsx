@@ -18,10 +18,7 @@ import ResultBlock from '../Blocks/ResultBlock/ResultBlock';
 import './Canvas.css';
 import { ChainData, Node } from '../../types/types';
 import _ from 'lodash';
-
-
-let id = 0;
-const getId = () => `dndnode_${id++}`;
+import { v4 as uuidv4 } from 'uuid';
 
 const nodeTypes = {
   primitive: PrimitiveBlock,
@@ -182,10 +179,12 @@ const Canvas = () => {
         x: event.clientX,
         y: event.clientY,
       });
+
+      const newId = uuidv4();
   
       // Adjusting how newNode is created based on nodeType and potentially operatorId
       const newNode = {
-        id: getId(),
+        id: newId,
         type: nodeType,
         position,
         data: { 
@@ -226,6 +225,7 @@ const Canvas = () => {
     return true;
   };
 
+
   useEffect(() => {
     const newChains = detectAndStoreChains();
     if (_.isEqual(newChains, chains) === false) {
@@ -235,7 +235,6 @@ const Canvas = () => {
 
 
   useEffect(() => {
-    console.log("useEffect chains");
     chains.forEach(chain => {
       if (chain.value !== null) {
         updateNodeData(chain.id, { value: chain.value.toString() });
@@ -244,8 +243,6 @@ const Canvas = () => {
       }
     });
   }, [chains, updateNodeData]);
-
-  console.log(chains);
   
   return (
     <div className="dndflow">
