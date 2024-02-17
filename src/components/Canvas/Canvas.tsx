@@ -17,6 +17,7 @@ import OperatorBlock from '../Blocks/OperatorBlock/OperatorBlock';
 import ResultBlock from '../Blocks/ResultBlock/ResultBlock';
 import './Canvas.css';
 import { ChainData, Node } from '../../types/types';
+import _ from 'lodash';
 
 
 let id = 0;
@@ -104,12 +105,11 @@ const Canvas = () => {
   
       return { id: resultNode.id, data: chainData, value: evaluatedValue };
     }).filter((chain): chain is ChainData => chain !== null);
+
+    return newChains;
   
-    setChains(newChains);
-  }, [nodes, edges, setChains]);
-  
-  
-  
+    // setChains(newChains);
+  }, [nodes, edges]);
   
 
   const onConnect = useCallback((params: Edge | Connection) => {
@@ -227,20 +227,15 @@ const Canvas = () => {
   };
 
   useEffect(() => {
-    detectAndStoreChains();
+    const newChains = detectAndStoreChains();
+    if (_.isEqual(newChains, chains) === false) {
+      setChains(newChains);
+    }
   }, [nodes, edges]); // Removed detectAndStoreChains from dependencies
 
-  useEffect(() => {
-    chains.forEach(chain => {
-      // Update node data only if it's different to minimize re-renders
-      const currentNode = nodes.find(n => n.id === chain.id);
-      if (currentNode && currentNode.data.value !== 'Calculating..') {
-        updateNodeData(chain.id, { value: 'Calculating..' });
-      }
-    });
-  }, [chains]);
 
   useEffect(() => {
+    console.log("useEffect chains");
     chains.forEach(chain => {
       if (chain.value !== null) {
         updateNodeData(chain.id, { value: chain.value.toString() });
